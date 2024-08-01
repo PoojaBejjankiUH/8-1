@@ -1,9 +1,9 @@
 let academicMaps = JSON.parse(localStorage.getItem('academicMaps')) || { programs: [] };
 let programs = academicMaps.programs.map(p => p.name);
-const courses = JSON.parse(localStorage.getItem('courseList')) ?? [];
-const electives = JSON.parse(localStorage.getItem('electivesList')) ?? {};
+const courseList = JSON.parse(localStorage.getItem('courseList')) ?? [];
+const electivesList = JSON.parse(localStorage.getItem('electivesList')) ?? {};
 
-function displayAcademicMap() {
+function displayProgramNavigation() {
     const programTabs = document.getElementById('programTabs');
     const programTabsContent = document.getElementById('programTabsContent');
     programTabs.innerHTML = '';
@@ -15,6 +15,12 @@ function displayAcademicMap() {
         tab.innerHTML = `
                 <a class="nav-link ${index === 0 ? 'active' : ''}" id="tab-${index}" data-toggle="tab" href="#content-${index}" role="tab" aria-controls="content-${index}" aria-selected="${index === 0 ? 'true' : 'false'}">${program}</a>
             `;
+        tab.querySelector('a').addEventListener('click', () => {
+            setTimeout(function () {
+                window.displayAcademicMap();
+            }, 1000);
+        });
+
         programTabs.appendChild(tab);
     
         // Create tab content
@@ -32,7 +38,7 @@ function fetchPrograms() {
     if (anyProgramsSaved) {
         document.getElementById('programs-container').style.display = 'flex';
         document.getElementById('no-programs-found').style.display = 'none';
-        displayAcademicMap();
+        displayProgramNavigation();
     } else {
         document.getElementById('programs-container').style.display = 'none';
         document.getElementById('no-programs-found').style.display = 'flex';
@@ -74,7 +80,7 @@ function populateCourseDropdown() {
     }
 
     // Fetch the available courses
-    const allCourses = [...courses, ...Object.values(electives).flat()];
+    const allCourses = [...courseList, ...Object.values(electivesList).flat()];
     
     courseSelect.innerHTML = '<option value="" disabled selected>Select Course</option>';
     allCourses.forEach(course => {
