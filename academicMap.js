@@ -11,10 +11,11 @@ function displayProgramNavigation() {
     programs.forEach((program, index) => {
         // Create tab
         const tab = document.createElement('li');
-        tab.className = 'nav-item';
+        tab.className = 'nav-item d-flex justify-content-around m-1';
         tab.innerHTML = `
-                <a class="nav-link ${index === 0 ? 'active' : ''}" id="tab-${index}" data-toggle="tab" href="#content-${index}" role="tab" aria-controls="content-${index}" aria-selected="${index === 0 ? 'true' : 'false'}">${program}</a>
-            `;
+            <a class="nav-link ${index === 0 ? 'active' : ''}" id="tab-${index}" data-toggle="tab" href="#content-${index}" role="tab" aria-controls="content-${index}" aria-selected="${index === 0 ? 'true' : 'false'}">${program}</a>
+            <button class="btn btn-danger btn-sm ml-2 admin-only" onclick="deleteProgram('${program}')">Delete program</button>
+        `;
         tab.querySelector('a').addEventListener('click', () => {
             setTimeout(function () {
                 window.displayAcademicMap();
@@ -22,7 +23,7 @@ function displayProgramNavigation() {
         });
 
         programTabs.appendChild(tab);
-    
+
         // Create tab content
         const tabContent = document.createElement('div');
         tabContent.className = `tab-pane fade ${index === 0 ? 'show active' : ''}`;
@@ -31,6 +32,7 @@ function displayProgramNavigation() {
         tabContent.setAttribute('aria-labelledby', `tab-${index}`);
         programTabsContent.appendChild(tabContent);
     });
+    window.displayAcademicMap();
 }
 
 function fetchPrograms() {
@@ -67,6 +69,17 @@ function createProgram() {
     }
 }
 
+function deleteProgram(programName) {
+    const programIndex = academicMaps.programs.findIndex(p => p.name === programName);
+    if (programIndex !== -1) {
+        academicMaps.programs.splice(programIndex, 1);
+        programs = academicMaps.programs.map(p => p.name);
+        localStorage.setItem('programs', JSON.stringify(programs));
+        localStorage.setItem('academicMaps', JSON.stringify(academicMaps));
+        fetchPrograms();
+    }
+}
+
 function populateCourseDropdown() {
     const yearSelect = document.getElementById('year-select');
     const semesterSelect = document.getElementById('semester-select');
@@ -81,7 +94,7 @@ function populateCourseDropdown() {
 
     // Fetch the available courses
     const allCourses = [...courseList, ...Object.values(electivesList).flat()];
-    
+
     courseSelect.innerHTML = '<option value="" disabled selected>Select Course</option>';
     allCourses.forEach(course => {
         const option = document.createElement('option');
@@ -89,27 +102,6 @@ function populateCourseDropdown() {
         option.textContent = `${course.courseCode} - ${course.courseName}`;
         courseSelect.appendChild(option);
     });
-}
-
-function addCourseToAcademicMap() {
-    const year = document.getElementById('year-select').value;
-    const semester = document.getElementById('semester-select').value;
-    const courseCode = document.getElementById('course-select').value;
-    const programName = document.querySelector('.nav-link.active').innerText;
-
-    const programIndex = academicMaps.programs.findIndex(p => p.name === programName);
-    if (programIndex !== -1) {
-        const yearData = academicMaps.programs[programIndex].years.find(y => y.year == year);
-        if (yearData && courseCode) {
-            yearData[semester].courses.push(courseCode);
-            localStorage.setItem('academicMaps', JSON.stringify(academicMaps));
-            alert("Course added successfully!");
-        } else {
-            alert("Please select a valid course.");
-        }
-    } else {
-        alert("Program not found.");
-    }
 }
 
 document.getElementById('year-select').addEventListener('change', populateCourseDropdown);
