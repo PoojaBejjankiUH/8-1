@@ -219,7 +219,7 @@ function displayAcademicMap() {
                     <th>Course Code</th>
                     <th>Course Name</th>
                     <th>Credits</th>
-                    <th>Actions</th>
+                    <th class="admin-only">Actions</th>
                 </tr>`;
                 } else {
                     headerContent = `<tr>
@@ -227,7 +227,7 @@ function displayAcademicMap() {
                     <th>Course Name</th>
                     <th>Credits</th>
                     <th>Total Credits</th>
-                    <th>Actions</th>
+                    <th class="admin-only">Actions</th>
                 </tr>`;
                 }
                 thead.innerHTML = headerContent;
@@ -245,7 +245,7 @@ function displayAcademicMap() {
                             <td><a href="#" class="course-link" data-course-code="${course.courseCode}">${course.courseCode}</a></td>
                             <td><a href="#" class="course-link" data-course-code="${course.courseCode}">${course.courseName}</a></td>
                             <td>${course.credits}</td>
-                            <td><button class="btn btn-danger btn-sm admin-only" onclick="deleteCourseAcademicMap('${year}', '${semester}', '${course.courseCode}')">Delete</button></td>`;
+                            <td class="admin-only"><button class="btn btn-danger btn-sm" onclick="deleteCourseAcademicMap('${year}', '${semester}', '${course.courseCode}')">Delete</button></td>`;
                             fallCredits += course.credits;
                         } else {
                             row.innerHTML = `
@@ -253,7 +253,7 @@ function displayAcademicMap() {
                             <td><a href="#" class="course-link" data-course-code="${course.courseCode}">${course.courseName}</a></td>
                             <td>${course.credits}</td>
                             <td></td> <!-- Placeholder for total credits row later -->
-                            <td><button class="btn btn-danger btn-sm admin-only" onclick="deleteCourseAcademicMap('${year}', '${semester}', '${course.courseCode}')">Delete</button></td>`;
+                            <td class="admin-only"><button class="btn btn-danger btn-sm" onclick="deleteCourseAcademicMap('${year}', '${semester}', '${course.courseCode}')">Delete</button></td>`;
                             springCredits += course.credits;
                         }
                         semesterCredits += course.credits;
@@ -264,8 +264,7 @@ function displayAcademicMap() {
                 const totalRow = document.createElement('tr');
                 if (semester === 'semesterFall') {
                     totalRow.innerHTML = `<td colspan="3"><strong>Fall Total Credits</strong></td>
-                                      <td><strong>${fallCredits}</strong></td>
-                                      <td></td>`;
+                                      <td><strong>${fallCredits}</strong></td>`;
                 } else {
                     const totalYearCredits = fallCredits + springCredits;
                     totalRow.innerHTML = `<td colspan="2"><strong>Spring Total Credits</strong></td>
