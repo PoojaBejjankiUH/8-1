@@ -4,6 +4,7 @@ const courseList = JSON.parse(localStorage.getItem('courseList')) ?? [];
 const electivesList = JSON.parse(localStorage.getItem('electivesList')) ?? {};
 
 function displayProgramNavigation() {
+    
     const programTabs = document.getElementById('programTabs');
     const programTabsContent = document.getElementById('programTabsContent');
     programTabs.innerHTML = '';
@@ -14,7 +15,7 @@ function displayProgramNavigation() {
         tab.className = 'nav-item d-flex justify-content-around m-1';
         tab.innerHTML = `
             <a class="nav-link ${index === 0 ? 'active' : ''}" id="tab-${index}" data-toggle="tab" href="#content-${index}" role="tab" aria-controls="content-${index}" aria-selected="${index === 0 ? 'true' : 'false'}">${program}</a>
-            <button class="btn btn-danger btn-sm ml-2 admin-only" onclick="deleteProgram('${program}')">Delete program</button>
+            <button class="btn btn-danger btn-sm ml-2 admin-only" onclick="deleteProgram('${program}')">Delete Program</button>
         `;
         tab.querySelector('a').addEventListener('click', () => {
             setTimeout(function () {
@@ -31,8 +32,9 @@ function displayProgramNavigation() {
         tabContent.setAttribute('role', 'tabpanel');
         tabContent.setAttribute('aria-labelledby', `tab-${index}`);
         programTabsContent.appendChild(tabContent);
+        window.displayAcademicMap();
     });
-    window.displayAcademicMap();
+
 }
 
 function fetchPrograms() {
@@ -102,6 +104,27 @@ function populateCourseDropdown() {
         option.textContent = `${course.courseCode} - ${course.courseName}`;
         courseSelect.appendChild(option);
     });
+}
+
+function addCourseToAcademicMap() {
+    const year = document.getElementById('year-select').value;
+    const semester = document.getElementById('semester-select').value;
+    const courseCode = document.getElementById('course-select').value;
+    const programName = document.querySelector('.nav-link.active').innerText;
+
+    const programIndex = academicMaps.programs.findIndex(p => p.name === programName);
+    if (programIndex !== -1) {
+        const yearData = academicMaps.programs[programIndex].years.find(y => y.year == year);
+        if (yearData && courseCode) {
+            yearData[semester].courses.push(courseCode);
+            localStorage.setItem('academicMaps', JSON.stringify(academicMaps));
+            alert("Course added successfully!");
+        } else {
+            alert("Please select a valid course.");
+        }
+    } else {
+        alert("Program not found.");
+    }
 }
 
 document.getElementById('year-select').addEventListener('change', populateCourseDropdown);
