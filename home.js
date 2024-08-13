@@ -25,9 +25,9 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(jsonData => {
                 courses = jsonData.courses || [];
                 electives = jsonData.electives || {};
-                
+
                 updateLocalStorage(); // Store the combined list initially
-                
+
                 displayAllCourses();
                 updateCategoryOptions();
             })
