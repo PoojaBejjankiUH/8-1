@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const storedCourses = localStorage.getItem('courseList');
     const storedElectives = localStorage.getItem('electivesList');
     const storedAcademicMap = localStorage.getItem('academicMaps');
-    setViewMode();
+    setViewMode(isAdmin);
     if (storedCourses && storedElectives) {
         courses = JSON.parse(storedCourses);
         electives = JSON.parse(storedElectives);
@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", function() {
             programAcademicMap = JSON.parse(storedAcademicMap);
         }
         updateCourseDropdown();
+        routing('academicMap');
     }/*  else {
         fetch('data_version3.json')
             .then(response => response.json())
@@ -93,7 +94,7 @@ function populateElectiveCategoriesDropdown() {
 
 function populateElectiveCoursesDropdown(category) {
     const alreadyAddedCourses = programFromStorage.years.flatMap(year => [...year.semesterFall.courses, ...year.semesterSpring.courses]);
-    const filteredcourses = electives[category].filter(course => !alreadyAddedCourses.includes(course.courseCode));
+    const filteredcourses = courses.filter(course => !alreadyAddedCourses.includes(course.courseCode));
     const courseSelect = document.getElementById('course-select');
     courseSelect.innerHTML = '<option value="" disabled selected>Select Course</option>';
     filteredcourses.forEach(course => {
@@ -118,14 +119,25 @@ function addCoursesToAcademicMap() {
         const yearData = program.years.find(program => program.year == +(year)+1);
         if (yearData) {
             const courseCode = document.getElementById('course-select').value;
+            /* if (courseType === 'core' ) {
+                if (coreCourse) {
+                    coursesToAdd.push(coreCourse);
+                }
+            } else if (courseType === 'elective') {
+                if (category && electives[category]) {
+                    coursesToAdd = electives[category].map(course => course.courseCode);
+                }
+                console.log('Courses to Add from Elective Category:', coursesToAdd);
+            }
+ */         
             if (courseCode) {
                 if (!yearData[semester].courses.includes(courseCode)) {
                     yearData[semester].courses.push(courseCode);
                 }
                 localStorage.setItem('academicMaps', JSON.stringify(programAcademicMap));
+                document.getElementById('course-form').reset();
                 displayAcademicMap();
                 alert("Courses added successfully!");
-                document.getElementById('course-form').reset()
                 console.log('Updated Year Data:', yearData);
             } else {
                 alert("No courses selected.");
@@ -207,7 +219,7 @@ function displayAcademicMap() {
                     <th>Course Code</th>
                     <th>Course Name</th>
                     <th>Credits</th>
-                    <th class="admin-only">Actions</th>
+                    <th>Actions</th>
                 </tr>`;
                 } else {
                     headerContent = `<tr>
@@ -215,7 +227,7 @@ function displayAcademicMap() {
                     <th>Course Name</th>
                     <th>Credits</th>
                     <th>Total Credits</th>
-                    <th class="admin-only">Actions</th>
+                    <th>Actions</th>
                 </tr>`;
                 }
                 thead.innerHTML = headerContent;
@@ -233,7 +245,7 @@ function displayAcademicMap() {
                             <td><a href="#" class="course-link" data-course-code="${course.courseCode}">${course.courseCode}</a></td>
                             <td><a href="#" class="course-link" data-course-code="${course.courseCode}">${course.courseName}</a></td>
                             <td>${course.credits}</td>
-                            <td class="admin-only"><button class="btn btn-danger btn-sm" onclick="deleteCourseAcademicMap('${year}', '${semester}', '${course.courseCode}')">Delete</button></td>`;
+                            <td><button class="btn btn-danger btn-sm admin-only" onclick="deleteCourseAcademicMap('${year}', '${semester}', '${course.courseCode}')">Delete</button></td>`;
                             fallCredits += course.credits;
                         } else {
                             row.innerHTML = `
@@ -241,7 +253,7 @@ function displayAcademicMap() {
                             <td><a href="#" class="course-link" data-course-code="${course.courseCode}">${course.courseName}</a></td>
                             <td>${course.credits}</td>
                             <td></td> <!-- Placeholder for total credits row later -->
-                            <td class="admin-only"><button class="btn btn-danger btn-sm" onclick="deleteCourseAcademicMap('${year}', '${semester}', '${course.courseCode}')">Delete</button></td>`;
+                            <td><button class="btn btn-danger btn-sm admin-only" onclick="deleteCourseAcademicMap('${year}', '${semester}', '${course.courseCode}')">Delete</button></td>`;
                             springCredits += course.credits;
                         }
                         semesterCredits += course.credits;
@@ -252,7 +264,8 @@ function displayAcademicMap() {
                 const totalRow = document.createElement('tr');
                 if (semester === 'semesterFall') {
                     totalRow.innerHTML = `<td colspan="3"><strong>Fall Total Credits</strong></td>
-                                      <td><strong>${fallCredits}</strong></td>`;
+                                      <td><strong>${fallCredits}</strong></td>
+                                      <td></td>`;
                 } else {
                     const totalYearCredits = fallCredits + springCredits;
                     totalRow.innerHTML = `<td colspan="2"><strong>Spring Total Credits</strong></td>
@@ -321,13 +334,14 @@ function routing(id) {
     if (id === 'academicMap') {
         document.getElementById('homeContent').style.display = 'none';
         document.getElementById('addAcademicMapContent').style.display = 'block';
+        displayAcademicMap();
     }
 }
 
 
 document.getElementById('viewToggle').addEventListener('change', function() {
     isAdmin = this.value === 'admin';
-    document.getElementById('homeContent').style.display = isAdmin ? 'block': 'none';
+    document.getElementById('homeContent').style.display = isAdmin ? 'block' : 'none'; // Show course tab
     setViewMode();
 });
 
