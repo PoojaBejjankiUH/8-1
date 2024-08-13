@@ -63,3 +63,11 @@ select option {
 .wide-table {
     width: 100%;
 }
+
+.nav-link {
+    color: var(--bs-emphasis-color) !important;
+}
+
+.nav-link.active {
+    color: var(--bs-nav-link-color) !important;
+}
